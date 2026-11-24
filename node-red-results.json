@@ -1,0 +1,251 @@
+{
+  "environment": "Real Node-RED HTTP endpoints on localhost:1880",
+  "timestamp": "2026-11-24T15:36:05.618Z",
+  "results": [
+    {
+      "id": "T1",
+      "input": {
+        "now": "09:00",
+        "blocked": false,
+        "start": "11:00",
+        "duration": 60
+      },
+      "expected": "AVAILABLE",
+      "code": {
+        "available": true,
+        "reasonCode": "AVAILABLE",
+        "message": "Room B-204 is available for 60 min (11:00–12:00).",
+        "kind": "available"
+      },
+      "low": {
+        "available": true,
+        "reasonCode": "AVAILABLE",
+        "message": "Room B-204 is available for the requested interval.",
+        "kind": "available"
+      },
+      "codePass": true,
+      "lowPass": true
+    },
+    {
+      "id": "T2",
+      "input": {
+        "now": "09:00",
+        "blocked": false,
+        "start": "10:30",
+        "duration": 60
+      },
+      "expected": "OVERLAP",
+      "code": {
+        "available": false,
+        "reasonCode": "OVERLAP",
+        "message": "Overlaps existing booking \"CS101 Lecture\" (10:00–11:00).",
+        "kind": "unavailable"
+      },
+      "low": {
+        "available": false,
+        "reasonCode": "OVERLAP",
+        "message": "This request overlaps an existing booking.",
+        "kind": "unavailable"
+      },
+      "codePass": true,
+      "lowPass": true
+    },
+    {
+      "id": "T3",
+      "input": {
+        "now": "09:00",
+        "blocked": true,
+        "start": "12:00",
+        "duration": 60
+      },
+      "expected": "ROOM_BLOCKED",
+      "code": {
+        "available": false,
+        "reasonCode": "ROOM_BLOCKED",
+        "message": "Room B-204 is currently blocked and cannot accept any bookings.",
+        "kind": "unavailable"
+      },
+      "low": {
+        "available": false,
+        "reasonCode": "ROOM_BLOCKED",
+        "message": "Room B-204 is currently blocked.",
+        "kind": "unavailable"
+      },
+      "codePass": true,
+      "lowPass": true
+    },
+    {
+      "id": "T4",
+      "input": {
+        "now": "09:00",
+        "blocked": false,
+        "start": "12:00",
+        "duration": 0
+      },
+      "expected": "INVALID_DURATION",
+      "code": {
+        "available": false,
+        "reasonCode": "INVALID_DURATION",
+        "message": "Duration must be a positive whole number of minutes.",
+        "kind": "validation"
+      },
+      "low": {
+        "available": false,
+        "reasonCode": "INVALID_DURATION",
+        "message": "Duration must be a positive whole number of minutes.",
+        "kind": "validation"
+      },
+      "codePass": true,
+      "lowPass": true
+    },
+    {
+      "id": "T5",
+      "input": {
+        "now": "09:00",
+        "blocked": false,
+        "start": "12:00",
+        "duration": 121
+      },
+      "expected": "DURATION_LIMIT",
+      "code": {
+        "available": false,
+        "reasonCode": "DURATION_LIMIT",
+        "message": "Duration is 121 minutes, which exceeds the 120-minute maximum.",
+        "kind": "validation"
+      },
+      "low": {
+        "available": false,
+        "reasonCode": "DURATION_LIMIT",
+        "message": "Duration must not exceed 120 minutes.",
+        "kind": "validation"
+      },
+      "codePass": true,
+      "lowPass": true
+    },
+    {
+      "id": "T6",
+      "input": {
+        "now": "09:00",
+        "blocked": false,
+        "start": "08:30",
+        "duration": 60
+      },
+      "expected": "PAST_START",
+      "code": {
+        "available": false,
+        "reasonCode": "PAST_START",
+        "message": "Start time must be strictly after now (09:00 = 540). Your start (08:30 = 510) is not in the future.",
+        "kind": "validation"
+      },
+      "low": {
+        "available": false,
+        "reasonCode": "PAST_START",
+        "message": "Start must be later than the current demo time.",
+        "kind": "validation"
+      },
+      "codePass": true,
+      "lowPass": true
+    },
+    {
+      "id": "T7",
+      "input": {
+        "now": "09:00",
+        "blocked": false,
+        "start": "14:00",
+        "duration": 60
+      },
+      "expected": "AVAILABLE",
+      "code": {
+        "available": true,
+        "reasonCode": "AVAILABLE",
+        "message": "Room B-204 is available for 60 min (14:00–15:00).",
+        "kind": "available"
+      },
+      "low": {
+        "available": true,
+        "reasonCode": "AVAILABLE",
+        "message": "Room B-204 is available for the requested interval.",
+        "kind": "available"
+      },
+      "codePass": true,
+      "lowPass": true
+    },
+    {
+      "id": "T8",
+      "input": "Repeated checks",
+      "expected": "Bookings unchanged",
+      "code": {
+        "unchanged": true
+      },
+      "low": {
+        "unchanged": true
+      },
+      "codePass": true,
+      "lowPass": true
+    }
+  ],
+  "security": [
+    {
+      "id": "S1",
+      "expected": "INVALID_TIME",
+      "code": "INVALID_TIME",
+      "low": "INVALID_TIME",
+      "pass": true
+    },
+    {
+      "id": "S2",
+      "expected": "INVALID_TIME",
+      "code": "INVALID_TIME",
+      "low": "INVALID_TIME",
+      "pass": true
+    },
+    {
+      "id": "S3",
+      "expected": "INVALID_DURATION",
+      "code": "INVALID_DURATION",
+      "low": "INVALID_DURATION",
+      "pass": true
+    },
+    {
+      "id": "S4",
+      "expected": "INVALID_STATUS",
+      "code": "INVALID_STATUS",
+      "low": "INVALID_STATUS",
+      "pass": true
+    },
+    {
+      "id": "S5",
+      "expected": "INVALID_DURATION",
+      "code": "INVALID_DURATION",
+      "low": "INVALID_DURATION",
+      "pass": true
+    },
+    {
+      "id": "S6",
+      "expected": "INVALID_RANGE",
+      "code": "INVALID_RANGE",
+      "low": "INVALID_RANGE",
+      "pass": true
+    },
+    {
+      "id": "S7",
+      "expected": "PAST_START",
+      "code": "PAST_START",
+      "low": "PAST_START",
+      "pass": true
+    },
+    {
+      "id": "S8",
+      "expected": "AVAILABLE",
+      "code": "AVAILABLE",
+      "low": "AVAILABLE",
+      "pass": true
+    }
+  ],
+  "counts": {
+    "code": 8,
+    "low": 8,
+    "security": 8
+  },
+  "elapsedMs": 188
+}

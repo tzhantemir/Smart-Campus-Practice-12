@@ -1,0 +1,27 @@
+Local execution of exact exported Function node (not a deployed Node-RED instance)
+┌─────────┬──────┬──────────────────────┬────────┬────────┐
+│ (index) │ test │ expected             │ code   │ low    │
+├─────────┼──────┼──────────────────────┼────────┼────────┤
+│ 0       │ 'T1' │ 'AVAILABLE'          │ 'PASS' │ 'PASS' │
+│ 1       │ 'T2' │ 'OVERLAP'            │ 'PASS' │ 'PASS' │
+│ 2       │ 'T3' │ 'ROOM_BLOCKED'       │ 'PASS' │ 'PASS' │
+│ 3       │ 'T4' │ 'INVALID_DURATION'   │ 'PASS' │ 'PASS' │
+│ 4       │ 'T5' │ 'DURATION_LIMIT'     │ 'PASS' │ 'PASS' │
+│ 5       │ 'T6' │ 'PAST_START'         │ 'PASS' │ 'PASS' │
+│ 6       │ 'T7' │ 'AVAILABLE'          │ 'PASS' │ 'PASS' │
+│ 7       │ 'T8' │ 'Bookings unchanged' │ 'PASS' │ 'PASS' │
+└─────────┴──────┴──────────────────────┴────────┴────────┘
+┌─────────┬──────┬────────────────────┬────────────────────┬────────────────────┬──────┐
+│ (index) │ id   │ expected           │ code               │ low                │ pass │
+├─────────┼──────┼────────────────────┼────────────────────┼────────────────────┼──────┤
+│ 0       │ 'S1' │ 'INVALID_TIME'     │ 'INVALID_TIME'     │ 'INVALID_TIME'     │ true │
+│ 1       │ 'S2' │ 'INVALID_TIME'     │ 'INVALID_TIME'     │ 'INVALID_TIME'     │ true │
+│ 2       │ 'S3' │ 'INVALID_DURATION' │ 'INVALID_DURATION' │ 'INVALID_DURATION' │ true │
+│ 3       │ 'S4' │ 'INVALID_STATUS'   │ 'INVALID_STATUS'   │ 'INVALID_STATUS'   │ true │
+│ 4       │ 'S5' │ 'INVALID_DURATION' │ 'INVALID_DURATION' │ 'INVALID_DURATION' │ true │
+│ 5       │ 'S6' │ 'INVALID_RANGE'    │ 'INVALID_RANGE'    │ 'INVALID_RANGE'    │ true │
+│ 6       │ 'S7' │ 'PAST_START'       │ 'PAST_START'       │ 'PAST_START'       │ true │
+│ 7       │ 'S8' │ 'AVAILABLE'        │ 'AVAILABLE'        │ 'AVAILABLE'        │ true │
+└─────────┴──────┴────────────────────┴────────────────────┴────────────────────┴──────┘
+Code 8/8 | Low-code 8/8 | Additional checks 8/8
+Elapsed: 33 ms

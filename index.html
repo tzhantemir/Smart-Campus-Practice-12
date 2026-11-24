@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Smart Campus | Code-based</title><style>
+:root{font:16px/1.5 system-ui,-apple-system,Segoe UI,Arial;background:#f2f5fa;color:#19263e}*{box-sizing:border-box}
+body{margin:0}.top{background:#15294a;color:#fff;padding:17px 22px}.top strong{font-size:17px;letter-spacing:.2px}
+.shell{max-width:900px;margin:32px auto;padding:0 20px}.meta{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:#52657d;font-weight:800}
+h1{font-size:30px;line-height:1.2;margin:8px 0}p{color:#51617a;margin:8px 0 18px}
+.card{background:#fff;border:1px solid #dce3ef;border-radius:16px;box-shadow:0 8px 30px #15294a09;padding:24px;margin:16px 0}
+h2{font-size:17px;margin:0 0 12px}.bookings{display:flex;gap:10px;flex-wrap:wrap}.booking{background:#edf2fb;padding:10px 13px;border-radius:10px;color:#25395f;font-size:14px}
+.fields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}.field label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}
+input{width:100%;padding:12px;border:1px solid #aabbd1;border-radius:8px;font:inherit;min-height:44px}input[type=checkbox]{width:18px;min-height:auto;vertical-align:middle}.blocked{margin:17px 0 8px;font-size:14px}
+button{background:#315caa;color:white;border:0;border-radius:9px;padding:12px 18px;font:inherit;font-weight:700;cursor:pointer}button:hover{background:#254b8c}
+.result{margin-top:18px;padding:15px;border-radius:10px;font-size:15px}.good{background:#e7f6ec;border:1px solid #a6dbb7;color:#20552f}.bad{background:#fdf0ef;border:1px solid #f4bdb8;color:#842e2b}.warn{background:#fff6e6;border:1px solid #e7cd97;color:#795421}
+.small{font-size:12px;color:#64738a}code{font-size:13px}@media(max-width:710px){.fields{grid-template-columns:repeat(2,1fr)}h1{font-size:25px}}@media(max-width:430px){.fields{grid-template-columns:1fr}.card{padding:16px}.shell{padding:0 12px;margin:19px auto}}
+</style></head><body><div class="top"><strong>SMART CAMPUS &nbsp;/&nbsp; Software Engineering</strong></div>
+<div class="shell"><div class="meta">Track A · Code-based (TypeScript core)</div><h1>Room Availability Checker</h1>
+<p>Deterministic checking of fictional Room B-204. The source rule engine is reused from the previous project.</p>
+<section class="card"><h2>Existing bookings · Room B-204</h2><div class="bookings"><div class="booking">CS101 Lecture · 10:00–11:00</div><div class="booking">Faculty Meeting · 15:00–16:00</div></div><p class="small">Read-only bookings; no real users or database.</p></section>
+<section class="card"><h2>Check availability</h2><form id="form" novalidate><div class="fields">
+<div class="field"><label for="start">Start time</label><input id="start" value="11:00" placeholder="HH:MM"></div>
+<div class="field"><label for="duration">Duration (minutes)</label><input id="duration" type="number" value="60"></div>
+<div class="field"><label for="now">Current time (demo)</label><input id="now" value="09:00" placeholder="HH:MM"></div>
+<div class="field"><label for="room">Room</label><input id="room" value="B-204" readonly></div></div>
+<div class="blocked"><label><input id="blocked" type="checkbox"> Room is blocked</label></div>
+<button id="check" type="submit">Check availability</button></form>
+<div id="result" role="status" aria-live="polite" hidden></div></section>
+<p class="small">Practice #12 • Same six acceptance criteria and eight test cases as the low-code track.</p>
+</div><script id="engine">
+const MINUTES_PER_DAY = 1440;
+function minutesToHHMM(min) {
+    const h = Math.floor(min / 60);
+    const m = min % 60;
+    return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
+function hhmmToMinutes(value) {
+    const trimmed = value.trim();
+    if (trimmed === "24:00")
+        return MINUTES_PER_DAY;
+    const match = /^([01]?\d|2[0-3]):([0-5]\d)$/.exec(trimmed);
+    if (!match)
+        return null;
+    return parseInt(match[1], 10) * 60 + parseInt(match[2], 10);
+}
+function checkBooking(start, end, now, blocked, existing) {
+    if (!Number.isInteger(start) || !Number.isInteger(end)) {
+        return { available: false, reason: "Start and end times must be whole minutes." };
+    }
+    if (!(0 <= start && start < end && end <= MINUTES_PER_DAY)) {
+        return {
+            available: false,
+            reason: `Times must satisfy 0 ≤ start < end ≤ 1440. You entered start=${start}, end=${end}.`,
+        };
+    }
+    if (!Number.isInteger(now) || now < 0 || now > 1439) {
+        return { available: false, reason: "Current time must be between 0 and 1439." };
+    }
+    if (start <= now) {
+        return {
+            available: false,
+            reason: `Start time must be strictly after now (${minutesToHHMM(now)} = ${now}). Your start (${minutesToHHMM(start)} = ${start}) is not in the future.`,
+        };
+    }
+    if (end - start > 120) {
+        return {
+            available: false,
+            reason: `Duration is ${end - start} minutes, which exceeds the 120-minute maximum.`,
+        };
+    }
+    if (blocked) {
+        return {
+            available: false,
+            reason: "Room B-204 is currently blocked and cannot accept any bookings.",
+        };
+    }
+    for (const b of existing) {
+        const overlaps = start < b.end && b.start < end;
+        if (overlaps) {
+            return {
+                available: false,
+                reason: `Overlaps existing booking "${b.label}" (${minutesToHHMM(b.start)}–${minutesToHHMM(b.end)}).`,
+            };
+        }
+    }
+    return {
+        available: true,
+        reason: `Room B-204 is available for ${end - start} min (${minutesToHHMM(start)}–${minutesToHHMM(end)}).`,
+    };
+}
+
+const bookings = Object.freeze([
+  Object.freeze({start:600,end:660,label:'CS101 Lecture'}),
+  Object.freeze({start:900,end:960,label:'Faculty Meeting'})
+]);
+function checkRequest(input) {
+  const time = v => typeof v === 'string' ? hhmmToMinutes(v) : null;
+  const start = time(input.start), now = time(input.now);
+  const raw = input.duration;
+  const duration = typeof raw === 'number' ? raw : typeof raw === 'string' && raw.trim() !== '' ? Number(raw) : NaN;
+  const invalid = (reasonCode,message) => ({available:false,reasonCode,message,kind:'validation'});
+  if(start===null || start===1440 || now===null || now===1440) return invalid('INVALID_TIME','Enter valid HH:MM start and current times.');
+  if(!Number.isSafeInteger(duration) || duration<=0) return invalid('INVALID_DURATION','Duration must be a positive whole number of minutes.');
+  if(typeof input.blocked !== 'boolean') return invalid('INVALID_STATUS','Room blocked must be true or false.');
+  const end = start+duration;
+  const response = checkBooking(start,end,now,input.blocked,bookings);
+  const reasonCode = response.available ? 'AVAILABLE' : end>1440 ? 'INVALID_RANGE' : start<=now ? 'PAST_START' : duration>120 ? 'DURATION_LIMIT' : input.blocked ? 'ROOM_BLOCKED' : 'OVERLAP';
+  const kind = response.available ? 'available' : ['INVALID_RANGE','PAST_START','DURATION_LIMIT'].includes(reasonCode) ? 'validation' : 'unavailable';
+  return {available:response.available,reasonCode,message:response.reason,kind};
+}
+</script>
+<script>
+const form=document.getElementById('form'), out=document.getElementById('result');
+form.addEventListener('submit',event=>{
+  event.preventDefault();
+  const d=checkRequest({start:document.getElementById('start').value,now:document.getElementById('now').value,duration:document.getElementById('duration').value,blocked:document.getElementById('blocked').checked});
+  out.hidden=false;
+  out.className='result '+({available:'good',unavailable:'bad',validation:'warn'}[d.kind]);
+  out.textContent=(d.available?'Available':d.kind==='validation'?'Validation error':'Unavailable')+' — '+d.message+' ['+d.reasonCode+']';
+});
+</script></body></html>

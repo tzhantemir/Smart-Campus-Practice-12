@@ -1,0 +1,106 @@
+[
+  {
+    "id": "f8cce80081b1aa00",
+    "type": "tab",
+    "label": "Smart Campus - Practice 12",
+    "disabled": false,
+    "info": "Standalone low-code workflow; import into Node-RED, then Deploy. Uses core HTTP In, Template, Function and HTTP Response nodes only."
+  },
+  {
+    "id": "f8cce80081b1aa01",
+    "type": "http in",
+    "z": "f8cce80081b1aa00",
+    "name": "Show checker page",
+    "url": "/campus",
+    "method": "get",
+    "upload": false,
+    "swaggerDoc": "",
+    "x": 160,
+    "y": 100,
+    "wires": [
+      [
+        "f8cce80081b1aa02"
+      ]
+    ]
+  },
+  {
+    "id": "f8cce80081b1aa02",
+    "type": "template",
+    "z": "f8cce80081b1aa00",
+    "name": "Checker form (HTML)",
+    "field": "payload",
+    "fieldType": "msg",
+    "format": "handlebars",
+    "syntax": "mustache",
+    "template": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>Smart Campus | Node-RED</title><style>\n:root{font:16px/1.5 system-ui,-apple-system,Segoe UI,Arial;background:#f5f8f6;color:#19322c}*{box-sizing:border-box}body{margin:0}.top{background:#214b3c;color:white;padding:17px 22px;font-weight:700}\nmain{max-width:870px;margin:30px auto;padding:0 20px}.meta{font-size:12px;color:#43705e;text-transform:uppercase;letter-spacing:.08em;font-weight:800}h1{font-size:29px;margin:8px 0}\np{color:#62756b}.box{background:white;border:1px solid #d8e7dd;border-radius:16px;padding:24px;margin:18px 0;box-shadow:0 8px 30px #214b3c08}\n.chips{display:flex;gap:10px;flex-wrap:wrap}.chip{padding:10px 14px;background:#e8f4eb;border-radius:9px;font-size:14px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}label{font-size:13px;font-weight:750;display:block;margin-bottom:7px}\ninput{border:1px solid #adc8b8;padding:12px;width:100%;border-radius:8px;font:inherit;min-height:44px}input[type=checkbox]{width:18px;min-height:auto;vertical-align:middle}button{border:0;background:#28795b;color:white;font:inherit;font-weight:750;padding:12px 18px;border-radius:9px;cursor:pointer}.blocked{margin:16px 0}\n#result{border-radius:10px;margin-top:18px;padding:15px}.available{background:#e6f6ec;color:#1c6438;border:1px solid #9ed7b2}.unavailable{background:#fceceb;color:#8b2f24;border:1px solid #f2b3a9}.validation{background:#fff6df;color:#78571b;border:1px solid #ebd19e}.small{font-size:12px;color:#6a7b70}\n@media(max-width:650px){.grid{grid-template-columns:1fr}.box{padding:16px}main{padding:0 12px;margin:16px auto}} </style></head><body><header class=\"top\">SMART CAMPUS &nbsp;/&nbsp; Node-RED Workflow</header>\n<main><div class=\"meta\">Track B \u00b7 Low-code (HTTP / Function / Response nodes)</div><h1>Room Availability Checker</h1><p>A separate flow-based implementation of the same deterministic requirements.</p>\n<div class=\"box\"><h3>Room B-204 \u00b7 Existing bookings</h3><div class=\"chips\"><div class=\"chip\">CS101 Lecture \u00b7 10:00\u201311:00</div><div class=\"chip\">Faculty Meeting \u00b7 15:00\u201316:00</div></div><p class=\"small\">Fictional data only. No booking will be created.</p></div>\n<div class=\"box\"><h3>Availability workflow</h3><form id=\"checkForm\" novalidate><div class=\"grid\"><div><label for=\"start\">Start time</label><input id=\"start\" value=\"11:00\" placeholder=\"HH:MM\"></div><div><label for=\"duration\">Duration (minutes)</label><input id=\"duration\" value=\"60\" type=\"number\"></div><div><label for=\"now\">Current time (demo)</label><input id=\"now\" value=\"09:00\"></div></div><div class=\"blocked\"><label><input id=\"blocked\" type=\"checkbox\"> Room blocked</label></div><button type=\"submit\">Run workflow</button></form><div id=\"result\" role=\"status\" aria-live=\"polite\" hidden></div></div>\n<p class=\"small\">The browser calls <code>/campus/check</code> in the Node-RED flow. Decisions are calculated server-side.</p></main>\n<script>const form=document.getElementById('checkForm'),out=document.getElementById('result');form.addEventListener('submit',async e=>{e.preventDefault();out.hidden=false;out.className='';out.textContent='Checking...';try{\nconst res=await fetch('/campus/check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({start:document.getElementById('start').value,duration:document.getElementById('duration').value,now:document.getElementById('now').value,blocked:document.getElementById('blocked').checked})});if(!res.ok)throw Error('HTTP '+res.status);const d=await res.json();out.className=d.kind;out.textContent=(d.available?'Available':d.kind==='validation'?'Validation error':'Unavailable')+' \u2014 '+d.message+' ['+d.reasonCode+']';\n}catch(err){out.className='validation';out.textContent='Workflow endpoint unavailable. '+err.message;}});</script></body></html>",
+    "output": "str",
+    "x": 400,
+    "y": 100,
+    "wires": [
+      [
+        "f8cce80081b1aa03"
+      ]
+    ]
+  },
+  {
+    "id": "f8cce80081b1aa03",
+    "type": "http response",
+    "z": "f8cce80081b1aa00",
+    "name": "Serve HTML",
+    "statusCode": "",
+    "headers": {
+      "content-type": "text/html; charset=utf-8"
+    },
+    "x": 660,
+    "y": 100,
+    "wires": []
+  },
+  {
+    "id": "f8cce80081b1aa04",
+    "type": "http in",
+    "z": "f8cce80081b1aa00",
+    "name": "Receive availability input",
+    "url": "/campus/check",
+    "method": "post",
+    "upload": false,
+    "swaggerDoc": "",
+    "x": 160,
+    "y": 240,
+    "wires": [
+      [
+        "f8cce80081b1aa05"
+      ]
+    ]
+  },
+  {
+    "id": "f8cce80081b1aa05",
+    "type": "function",
+    "z": "f8cce80081b1aa00",
+    "name": "Validate + availability rules",
+    "func": "// Node-RED Function node; same classroom contract as the TypeScript version.\n// msg.payload: { start: \"HH:MM\", duration: integer, now: \"HH:MM\", blocked: boolean }\nconst bookings = Object.freeze([\n  Object.freeze({ start: 600, end: 660, label: \"CS101 Lecture\" }),\n  Object.freeze({ start: 900, end: 960, label: \"Faculty Meeting\" })\n]);\nconst body = msg.payload && typeof msg.payload === \"object\" && !Array.isArray(msg.payload) ? msg.payload : {};\nconst parseTime = value => {\n  if (typeof value !== \"string\") return null;\n  const match = /^([01]?\\d|2[0-3]):([0-5]\\d)$/.exec(value.trim());\n  return match ? Number(match[1]) * 60 + Number(match[2]) : null;\n};\nconst start = parseTime(body.start);\nconst now = parseTime(body.now);\nconst rawDuration = body.duration;\nconst duration = typeof rawDuration === 'number' ? rawDuration :\n  (typeof rawDuration === 'string' && rawDuration.trim() !== '' ? Number(rawDuration) : NaN);\nconst reply = (available, reasonCode, message, kind) => {\n  msg.payload = {available,reasonCode,message,kind};\n  msg.headers = {\"Content-Type\": \"application/json; charset=utf-8\", \"Cache-Control\": \"no-store\"};\n  return msg;\n};\nif (start === null || now === null) return reply(false,'INVALID_TIME','Enter valid HH:MM start and current times.','validation');\nif (!Number.isSafeInteger(duration) || duration <= 0) return reply(false,'INVALID_DURATION','Duration must be a positive whole number of minutes.','validation');\nif (typeof body.blocked !== 'boolean') return reply(false,'INVALID_STATUS','Room blocked must be true or false.','validation');\nconst end = start + duration;\nif (end > 1440) return reply(false,'INVALID_RANGE','The requested time range must end by 24:00.','validation');\nif (start <= now) return reply(false,'PAST_START','Start must be later than the current demo time.','validation');\nif (duration > 120) return reply(false,'DURATION_LIMIT','Duration must not exceed 120 minutes.','validation');\nif (body.blocked === true) return reply(false,'ROOM_BLOCKED','Room B-204 is currently blocked.','unavailable');\nif (bookings.some(b => start < b.end && b.start < end)) return reply(false,'OVERLAP','This request overlaps an existing booking.','unavailable');\nreturn reply(true,'AVAILABLE','Room B-204 is available for the requested interval.','available');",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 425,
+    "y": 240,
+    "wires": [
+      [
+        "f8cce80081b1aa06"
+      ]
+    ]
+  },
+  {
+    "id": "f8cce80081b1aa06",
+    "type": "http response",
+    "z": "f8cce80081b1aa00",
+    "name": "Respond with JSON",
+    "statusCode": "",
+    "headers": {},
+    "x": 695,
+    "y": 240,
+    "wires": []
+  }
+]
